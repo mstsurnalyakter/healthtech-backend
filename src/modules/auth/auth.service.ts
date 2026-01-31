@@ -1,12 +1,12 @@
 // import prisma from "../../config/prisma";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import prisma from "../../lib/prisma.js";
 import { config } from "../../config/index.js";
+import prisma from "../../lib/prisma.js";
 
 const generateTokens = (userId: string) => {
-  const jwtSecret = config.JWT_SECRET;
-  const refreshSecret = config.JWT_REFRESH_SECRET;
+  const jwtSecret = config.JWT_SECRET as jwt.Secret;
+  const refreshSecret = config.JWT_REFRESH_SECRET as jwt.Secret;
 
   if (!jwtSecret) {
     throw new Error('JWT_SECRET environment variable is not set');
@@ -19,13 +19,13 @@ const generateTokens = (userId: string) => {
   const accessToken = jwt.sign(
     { userId },
     jwtSecret,
-    { expiresIn: config.JWT_EXPIRES_IN || '15m' }
+    { expiresIn: config.JWT_EXPIRES_IN || '15m' } as any
   );
 
   const refreshToken = jwt.sign(
     { userId },
     refreshSecret,
-    { expiresIn: config.JWT_REFRESH_EXPIRES_IN || '7d' }
+    { expiresIn: config.JWT_REFRESH_EXPIRES_IN || '7d' } as any
   );
 
   return { accessToken, refreshToken };

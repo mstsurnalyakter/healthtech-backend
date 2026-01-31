@@ -6,6 +6,7 @@ import { limiter } from './middleware/rateLimiter.js';
 //
 import authRoutes from './modules/auth/auth.routes.js';
 import userRoutes from './modules/users/users.routes.js';
+import doctorRoutes from './modules/doctors/doctor.routes.js';
 
 const app = express();
 
@@ -17,5 +18,6 @@ app.use(express.json());
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/doctors', doctorRoutes);
 
 export default app;

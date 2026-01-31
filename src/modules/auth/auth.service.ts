@@ -2,10 +2,11 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../../lib/prisma.js";
+import { config } from "../../config/index.js";
 
 const generateTokens = (userId: string) => {
-  const jwtSecret = process.env.JWT_SECRET;
-  const refreshSecret = process.env.JWT_REFRESH_SECRET;
+  const jwtSecret = config.JWT_SECRET;
+  const refreshSecret = config.JWT_REFRESH_SECRET;
 
   if (!jwtSecret) {
     throw new Error('JWT_SECRET environment variable is not set');
@@ -18,13 +19,13 @@ const generateTokens = (userId: string) => {
   const accessToken = jwt.sign(
     { userId },
     jwtSecret,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '15m' }
+    { expiresIn: config.JWT_EXPIRES_IN || '15m' }
   );
 
   const refreshToken = jwt.sign(
     { userId },
     refreshSecret,
-    { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d' }
+    { expiresIn: config.JWT_REFRESH_EXPIRES_IN || '7d' }
   );
 
   return { accessToken, refreshToken };
@@ -32,6 +33,10 @@ const generateTokens = (userId: string) => {
 
 export const registerUser = async (data: any) => {
   const hashedPassword = await bcrypt.hash(data.password, 10);
+
+  const exitingUser = await prisma.user.findUnique({ where: { email: data.email } });
+  if (exitingUser) throw new Error("User already exists");
+
 
   const user = await prisma.user.create({
     data: { ...data, password: hashedPassword },
